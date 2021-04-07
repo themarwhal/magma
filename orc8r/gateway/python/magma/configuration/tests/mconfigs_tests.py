@@ -16,6 +16,7 @@ from unittest import mock
 
 from google.protobuf.any_pb2 import Any
 from magma.configuration import mconfigs
+
 from orc8r.protos.mconfig import mconfigs_pb2
 
 

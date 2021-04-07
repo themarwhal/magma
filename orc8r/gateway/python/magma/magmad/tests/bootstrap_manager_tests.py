@@ -27,9 +27,10 @@ from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from cryptography.hazmat.primitives.asymmetric.utils import \
     encode_dss_signature
 from google.protobuf.timestamp_pb2 import Timestamp
-from orc8r.protos import bootstrapper_pb2_grpc
 from orc8r.protos.bootstrapper_pb2 import Challenge, ChallengeKey
 from orc8r.protos.certifier_pb2 import CSR, Certificate
+
+from orc8r.protos import bootstrapper_pb2_grpc
 
 # Allow access to protected variables for unit testing
 # pylint: disable=protected-access

@@ -12,20 +12,21 @@ limitations under the License.
 """
 
 import errno
-import grpc
 import logging
 import os
 import pathlib
 import subprocess
 import threading
 import time
-from typing import List
-from subprocess import SubprocessError
-from .command_builder import get_trace_builder
 from collections import namedtuple
+from subprocess import SubprocessError
+from typing import List
 
+import grpc
 from orc8r.protos.ctraced_pb2 import ReportEndedTraceRequest
 from orc8r.protos.ctraced_pb2_grpc import CallTraceControllerStub
+
+from .command_builder import get_trace_builder
 
 _TRACE_FILE_NAME = "call_trace"
 _TRACE_FILE_NAME_POSTPROCESSED = "call_trace_postprocessed"

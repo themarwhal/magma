@@ -16,6 +16,7 @@ import asyncio
 from enum import Enum
 
 import grpc
+
 from orc8r.protos import common_pb2
 
 from .service_registry import ServiceRegistry

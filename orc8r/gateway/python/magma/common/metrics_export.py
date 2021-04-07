@@ -15,8 +15,9 @@ import logging
 import time
 
 import metrics_pb2
-from orc8r.protos import metricsd_pb2
 from prometheus_client import REGISTRY
+
+from orc8r.protos import metricsd_pb2
 
 
 def get_metrics(registry=REGISTRY, verbose=False):

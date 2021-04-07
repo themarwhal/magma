@@ -14,6 +14,7 @@ limitations under the License.
 from magma.common.sentry import sentry_init
 from magma.common.service import MagmaService
 from magma.directoryd.rpc_servicer import GatewayDirectoryServiceRpcServicer
+
 from orc8r.protos.mconfig import mconfigs_pb2
 
 

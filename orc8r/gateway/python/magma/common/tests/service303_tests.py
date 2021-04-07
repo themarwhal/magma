@@ -14,13 +14,13 @@ limitations under the License.
 import asyncio
 from unittest import TestCase, main, mock
 
+from magma.common.service import MagmaService
+from magma.common.service_registry import ServiceRegistry
 from orc8r.protos.common_pb2 import Void
 from orc8r.protos.service303_pb2 import ServiceInfo
 from orc8r.protos.service303_pb2_grpc import Service303Stub
-from orc8r.protos.mconfig import mconfigs_pb2
 
-from magma.common.service import MagmaService
-from magma.common.service_registry import ServiceRegistry
+from orc8r.protos.mconfig import mconfigs_pb2
 
 
 class Service303Tests(TestCase):

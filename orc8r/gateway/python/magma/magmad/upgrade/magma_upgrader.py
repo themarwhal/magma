@@ -13,8 +13,9 @@ limitations under the License.
 import logging
 import re
 
-from magma.magmad.upgrade.upgrader import Upgrader, UpgraderFactory
 from magma.common.misc_utils import call_process
+from magma.magmad.upgrade.upgrader import Upgrader, UpgraderFactory
+
 
 class MagmaUpgraderFactory(UpgraderFactory):
     """

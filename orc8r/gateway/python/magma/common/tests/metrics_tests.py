@@ -15,11 +15,11 @@ import unittest
 import unittest.mock
 
 import metrics_pb2
-from orc8r.protos import metricsd_pb2
-from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram, \
-    Summary
-
 from magma.common import metrics_export
+from prometheus_client import (CollectorRegistry, Counter, Gauge, Histogram,
+                               Summary)
+
+from orc8r.protos import metricsd_pb2
 
 
 class Service303MetricTests(unittest.TestCase):

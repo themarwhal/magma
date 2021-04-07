@@ -15,10 +15,10 @@ limitations under the License.
 import datetime
 import enum
 import logging
+import os
 
 import grpc
 import magma.common.cert_utils as cert_utils
-import os
 import snowflake
 from cryptography.exceptions import InternalError
 from cryptography.hazmat.backends import default_backend
