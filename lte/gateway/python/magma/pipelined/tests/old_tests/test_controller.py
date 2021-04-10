@@ -46,6 +46,7 @@ Since the ovs library is built as part of OVS, importing it globally will cause
 these tests to raise ImportErrors, rather than skipping.
 """
 
+
 @unittest.skip("temporarily disabled")
 class MagmaControllerTest(unittest.TestCase):
     def setUp(self):
@@ -100,7 +101,8 @@ class BaseMagmaTest:
             self.apps_under_test = []
             self.mgr = AppManager.get_instance()
             self.mc = None
-            self.controller_thread = threading.Thread(target=self._start_controller)
+            self.controller_thread = threading.Thread(
+                target=self._start_controller)
 
         def tearDown(self):
             if self._topo_builder:
@@ -130,7 +132,7 @@ class BaseMagmaTest:
             util.start_process(["ovs-vsctl", "del-br", br_name])
 
             if self.mc:
-                for k in list(self.mc.TABLES.keys()): # reset all the tables
+                for k in list(self.mc.TABLES.keys()):  # reset all the tables
                     del self.mc.TABLES[k]
 
         def _start_controller(self):
@@ -179,6 +181,7 @@ class BaseMagmaTest:
             if tries > 10:
                 raise ValueError("Switch didn't connect in time, failing")
 
+
 @unittest.skip
 class MagmaControllerPktTest(BaseMagmaTest.MagmaControllerTest):
     def setUp(self):
@@ -221,16 +224,16 @@ class MagmaControllerPktTest(BaseMagmaTest.MagmaControllerTest):
             port = self._port_no[iface]
             flow = "in_port=%d,actions=output:%d" % (port, port)
             ret, out, err = util.start_process(["ovs-ofctl", "add-flow",
-                                               self.TEST_BRIDGE, flow])
+                                                self.TEST_BRIDGE, flow])
             ret, out, err = util.start_process(["ovs-ofctl", "dump-flows",
-                                               self.TEST_BRIDGE])
+                                                self.TEST_BRIDGE])
 
         self.mc.reset_all_flows(list(self.mc.datapaths.values())[0])
 
-        time.sleep(1.5) # we gotta wait a while in practice :-(
+        time.sleep(1.5)  # we gotta wait a while in practice :-(
 
         ret, out, err = util.start_process(["ovs-ofctl", "dump-flows",
-                                           self.TEST_BRIDGE])
+                                            self.TEST_BRIDGE])
 
         flows = out.decode("utf-8").strip().split('\n')
 
@@ -254,18 +257,18 @@ class MagmaControllerPktTest(BaseMagmaTest.MagmaControllerTest):
             port = self._port_no[iface]
             flow = "in_port=%d,table=5,actions=output:%d" % (port, port)
             ret, out, err = util.start_process(["ovs-ofctl", "add-flow",
-                                               self.TEST_BRIDGE, flow])
+                                                self.TEST_BRIDGE, flow])
             flow = "in_port=%d,table=6,actions=output:%d" % (port, port)
             ret, out, err = util.start_process(["ovs-ofctl", "add-flow",
-                                               self.TEST_BRIDGE, flow])
+                                                self.TEST_BRIDGE, flow])
             ret, out, err = util.start_process(["ovs-ofctl", "dump-flows",
-                                               self.TEST_BRIDGE])
+                                                self.TEST_BRIDGE])
 
         dp = list(self.mc.datapaths.values())[0]
         self.mc.delete_all_table_flows(dp, table=5)
         time.sleep(1.5)
         ret, out, err = util.start_process(["ovs-ofctl", "dump-flows",
-                                           self.TEST_BRIDGE])
+                                            self.TEST_BRIDGE])
 
         self.assertTrue("table=6" in str(out))
         self.assertFalse("table=5" in str(out))

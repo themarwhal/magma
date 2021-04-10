@@ -63,7 +63,7 @@ class InoutTest(BaseMagmaTest.MagmaControllerTest):
         self._wait_for_datapath()
 
         ret, out, err = util.start_process(["ovs-ofctl", "dump-flows",
-                                           self.TEST_BRIDGE])
+                                            self.TEST_BRIDGE])
         flow_string = str(out)
 
         # check if the flows we expect are loaded
@@ -73,5 +73,3 @@ class InoutTest(BaseMagmaTest.MagmaControllerTest):
 
         expected = "nw_src=%s actions=set_field:0x10->metadata,resubmit(,1)" % in_net
         self.assertTrue(expected in flow_string)
-
-

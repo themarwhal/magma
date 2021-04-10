@@ -103,7 +103,7 @@ class RyuDirectFlowQuery(FlowQuery):
         hub.joinall([hub.spawn(get_stats)])
         flows = queue.get(block=True)
         return [FlowStats(flow.packet_count, flow.byte_count,
-                flow.duration_sec, flow.cookie)
+                          flow.duration_sec, flow.cookie)
                 for flow in flows]
 
     @staticmethod
