@@ -114,6 +114,7 @@ RUN python3.8 -m pip install --no-cache-dir \
     click \
     pycares \
     python-dateutil \
+    aioeventlet>=0.4 \
     jsonpickle
 
 COPY cwf/gateway/deploy/roles/ovs/files/nx_actions.py /usr/local/lib/python3.8/dist-packages/ryu/ofproto/

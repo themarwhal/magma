@@ -17,6 +17,7 @@ aliases:
         only:
           - master
           - develop
+          - run-circleci
   - &lte_build_verify
     paths: "orc8r lte"
   - &c_cpp_build_verify
