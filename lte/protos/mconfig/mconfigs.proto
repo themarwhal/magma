@@ -86,7 +86,6 @@ message EnodebD {
 //------------------------------------------------------------------------------
 message PipelineD {
     enum NetworkServices {
-        METERING = 0 [deprecated=true];  // deprecated
         DPI = 1;
         ENFORCEMENT = 2;
     }
