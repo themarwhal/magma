@@ -129,11 +129,11 @@ class DPIController(MagmaController):
         # No reason to create a flow here
         if flow_state != FlowRequest.FLOW_CREATED:
             flows.add_flow(self._datapath, self._classify_app_tbl_num,
-                ul_match, actions, priority=flows.DEFAULT_PRIORITY,
-                idle_timeout=self._idle_timeout)
+                           ul_match, actions, priority=flows.DEFAULT_PRIORITY,
+                           idle_timeout=self._idle_timeout)
             flows.add_flow(self._datapath, self._classify_app_tbl_num,
-                dl_match, actions, priority=flows.DEFAULT_PRIORITY,
-                idle_timeout=self._idle_timeout)
+                           dl_match, actions, priority=flows.DEFAULT_PRIORITY,
+                           idle_timeout=self._idle_timeout)
 
     def remove_classify_flow(self, flow_match):
         try:
@@ -231,7 +231,7 @@ def get_app_id(app: str, service_type: str) -> int:
     if (len(app_match) == 1):
         app_id = APP_PROTOS[app_match[0]]
         LOG.debug("Classified %s-%s as %d", app, service_type,
-                            app_id)
+                  app_id)
         return app_id
     parent_match = [app for app in tokens if app in PARENT_PROTOS]
 

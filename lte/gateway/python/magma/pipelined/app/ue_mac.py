@@ -67,7 +67,7 @@ class UEMacAddressController(MagmaController):
             self._li_port = \
                 BridgeTools.get_ofport(kwargs['config']['li_local_iface'])
         self._dpi_port = \
-                BridgeTools.get_ofport(kwargs['config']['dpi']['mon_port'])
+            BridgeTools.get_ofport(kwargs['config']['dpi']['mon_port'])
 
     def initialize_on_connect(self, datapath):
         self.delete_all_flows(datapath)
@@ -279,8 +279,8 @@ class UEMacAddressController(MagmaController):
                                     udp_dst=68)
         # Set so triggers packetin and we can learn the ip to do arp response
         self._add_resubmit_flow(None, downlink_match, action,
-              flows.PASSTHROUGH_PRIORITY, next_table=self._dhcp_learn_scratch,
-              tbl_num=self._passthrough_set_tbl)
+                                flows.PASSTHROUGH_PRIORITY, next_table=self._dhcp_learn_scratch,
+                                tbl_num=self._passthrough_set_tbl)
 
         # Install default flow for dhcp learn scratch
         flows.add_output_flow(self._datapath, self._dhcp_learn_scratch,
@@ -323,7 +323,8 @@ class UEMacAddressController(MagmaController):
         dhcp_header = pkt.get_protocols(dhcp.dhcp)[0]
         # DHCP yiaddr is the client(UE) ip addr
         #      chaddr is the client mac address
-        self.add_arp_response_flow(imsi, dhcp_header.yiaddr, dhcp_header.chaddr)
+        self.add_arp_response_flow(
+            imsi, dhcp_header.yiaddr, dhcp_header.chaddr)
 
     def _install_default_flows(self):
         """
@@ -347,8 +348,8 @@ class UEMacAddressController(MagmaController):
         if self._li_port:
             match = MagmaMatch(in_port=self._li_port)
             flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num,
-                match, actions=[], priority=flows.DEFAULT_PRIORITY,
-                resubmit_table=self.next_table)
+                                                 match, actions=[], priority=flows.DEFAULT_PRIORITY,
+                                                 resubmit_table=self.next_table)
 
         # TODO We might want a default drop all rule with min priority, but
         # adding it breakes all unit tests for this controller(needs work)

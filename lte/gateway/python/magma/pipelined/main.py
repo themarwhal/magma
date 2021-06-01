@@ -141,12 +141,12 @@ def main():
     if enable_nat is True or service.config.get('setup_type') == 'XWF':
         ip_table_rule = 'POSTROUTING -o %s -j MASQUERADE' % service.config['nat_iface']
         check_and_add = 'iptables -t nat -C %s || iptables -t nat -A %s' % \
-                (ip_table_rule, ip_table_rule)
+            (ip_table_rule, ip_table_rule)
         logging.debug("check_and_add: %s", check_and_add)
         call_process(check_and_add,
-            callback,
-            service.loop,
-        )
+                     callback,
+                     service.loop,
+                     )
 
     service.loop.create_task(
         monitor_ifaces(

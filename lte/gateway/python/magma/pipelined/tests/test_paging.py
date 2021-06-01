@@ -22,21 +22,27 @@ from magma.pipelined.app.inout import EGRESS, INGRESS
 from magma.pipelined.app.ue_mac import UEMacAddressController
 from magma.pipelined.bridge_util import BridgeTools
 from magma.pipelined.openflow.magma_match import MagmaMatch
-from magma.pipelined.tests.app.flow_query import \
-    RyuDirectFlowQuery as FlowQuery
-from magma.pipelined.tests.app.packet_builder import (ARPPacketBuilder,
-                                                      DHCPPacketBuilder,
-                                                      EtherPacketBuilder,
-                                                      UDPPacketBuilder)
+from magma.pipelined.tests.app.flow_query import RyuDirectFlowQuery as FlowQuery
+from magma.pipelined.tests.app.packet_builder import (
+    ARPPacketBuilder,
+    DHCPPacketBuilder,
+    EtherPacketBuilder,
+    UDPPacketBuilder,
+)
 from magma.pipelined.tests.app.packet_injector import ScapyPacketInjector
-from magma.pipelined.tests.app.start_pipelined import (PipelinedController,
-                                                       TestSetup)
-from magma.pipelined.tests.pipelined_test_util import (FlowTest, FlowVerifier,
-                                                       SnapshotVerifier,
-                                                       create_service_manager,
-                                                       start_ryu_app_thread,
-                                                       stop_ryu_app_thread,
-                                                       wait_after_send)
+from magma.pipelined.tests.app.start_pipelined import (
+    PipelinedController,
+    TestSetup,
+)
+from magma.pipelined.tests.pipelined_test_util import (
+    FlowTest,
+    FlowVerifier,
+    SnapshotVerifier,
+    create_service_manager,
+    start_ryu_app_thread,
+    stop_ryu_app_thread,
+    wait_after_send,
+)
 from ryu.lib import hub
 from scapy.all import *
 from scapy.contrib.gtp import GTP_U_Header
@@ -54,7 +60,7 @@ class PagingTest(unittest.TestCase):
 
     @classmethod
     @unittest.mock.patch('netifaces.ifaddresses',
-                return_value=[[{'addr': '00:aa:bb:cc:dd:ee'}]])
+                         return_value=[[{'addr': '00:aa:bb:cc:dd:ee'}]])
     @unittest.mock.patch('netifaces.AF_LINK', 0)
     def setUpClass(cls, *_):
         """
@@ -68,7 +74,7 @@ class PagingTest(unittest.TestCase):
         warnings.simplefilter('ignore')
         cls.service_manager = create_service_manager([], ['classifier'])
         cls._tbl_num = cls.service_manager.get_table_num(Classifier.APP_NAME)
-        
+
         testing_controller_reference = Future()
         classifier_reference = Future()
         test_setup = TestSetup(
@@ -123,8 +129,8 @@ class PagingTest(unittest.TestCase):
         self.classifier_controller._delete_all_flows()
 
         ue_ip_addr = "192.168.128.30"
-        self.classifier_controller._install_paging_flow(IPAddress(version=IPAddress.IPV4,address=ue_ip_addr.encode('utf-8')),
-                                                        200, True) 
+        self.classifier_controller._install_paging_flow(IPAddress(version=IPAddress.IPV4, address=ue_ip_addr.encode('utf-8')),
+                                                        200, True)
 
         snapshot_verifier = SnapshotVerifier(self, self.BRIDGE,
                                              self.service_manager)
@@ -136,7 +142,8 @@ class PagingTest(unittest.TestCase):
            Delete the paging flow from table 0
         """
         ue_ip_addr = "192.168.128.30"
-        self.classifier_controller._remove_paging_flow(IPAddress(version=IPAddress.IPV4,address=ue_ip_addr.encode('utf-8')))
+        self.classifier_controller._remove_paging_flow(
+            IPAddress(version=IPAddress.IPV4, address=ue_ip_addr.encode('utf-8')))
 
         snapshot_verifier = SnapshotVerifier(self, self.BRIDGE,
                                              self.service_manager)
@@ -149,10 +156,10 @@ class PagingTest(unittest.TestCase):
         """
         # Need to delete all default flows in table 0 before
         # install the specific flows test case.
-        self.classifier_controller._delete_all_flows() 
+        self.classifier_controller._delete_all_flows()
 
         ue_ip_addr = "192.168.128.30"
-        self.classifier_controller._install_paging_flow(IPAddress(version=IPAddress.IPV4,address=ue_ip_addr.encode('utf-8')),
+        self.classifier_controller._install_paging_flow(IPAddress(version=IPAddress.IPV4, address=ue_ip_addr.encode('utf-8')),
                                                         200, True)
         # Create a set of packets
         pkt_sender = ScapyPacketInjector(self.BRIDGE)
@@ -163,8 +170,10 @@ class PagingTest(unittest.TestCase):
         i_tcp = TCP(seq=1, sport=1111, dport=2222)
         i_ip = IP(src='192.168.60.142', dst=self.EnodeB_IP)
 
-        gtp_packet_udp = eth / ip / o_udp / GTP_U_Header(teid=0x1, length=28,gtp_type=255) / i_ip / i_udp
-        gtp_packet_tcp = eth / ip / o_udp / GTP_U_Header(teid=0x1, length=68, gtp_type=255) / i_ip / i_tcp
+        gtp_packet_udp = eth / ip / o_udp / \
+            GTP_U_Header(teid=0x1, length=28, gtp_type=255) / i_ip / i_udp
+        gtp_packet_tcp = eth / ip / o_udp / \
+            GTP_U_Header(teid=0x1, length=68, gtp_type=255) / i_ip / i_tcp
 
         # Check if these flows were added (queries should return flows)
         flow_queries = [

@@ -217,9 +217,9 @@ class BridgeTools:
 
         flows = \
             subprocess.check_output(set_cmd).decode('utf-8').split('\n')
-        flows = list(filter(lambda x: (x is not None and
-                                       x != '' and
-                                       x.find("NXST_FLOW") == -1),
+        flows = list(filter(lambda x: (x is not None
+                                       and x != ''
+                                       and x.find("NXST_FLOW") == -1),
                             flows))
         return flows
 
@@ -316,4 +316,4 @@ class BridgeTools:
 
         return [parse_flow(flow) for flow in
                 filter_apps(cls.get_flows_for_bridge(bridge_name,
-                    include_stats=include_stats))]
+                                                     include_stats=include_stats))]

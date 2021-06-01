@@ -28,21 +28,22 @@ from lte.protos.pipelined_pb2 import (
 from lte.protos.session_manager_pb2 import UPFPagingInfo
 from magma.pipelined.app.base import ControllerType, MagmaController
 from magma.pipelined.app.inout import INGRESS
-from magma.pipelined.openflow import flows, messages
 from magma.pipelined.imsi import encode_imsi
+from magma.pipelined.openflow import flows, messages
 from magma.pipelined.openflow.magma_match import MagmaMatch
-from magma.pipelined.openflow.registers import (TUN_PORT_REG,
-                                                INGRESS_TUN_ID_REG,
-                                                Direction)
-from magma.pipelined.policy_converters import (get_eth_type,
-                                               get_ue_ip_match_args)
+from magma.pipelined.openflow.registers import (
+    INGRESS_TUN_ID_REG,
+    TUN_PORT_REG,
+    Direction,
+)
+from magma.pipelined.policy_converters import get_eth_type, get_ue_ip_match_args
 from magma.pipelined.utils import Utils
 from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER, set_ev_cls
 from ryu.lib.packet import ether_types, ipv4, packet
 from ryu.ofproto import ofproto_v1_0_parser
-from ryu.ofproto.ofproto_v1_4 import OFPP_LOCAL
 from ryu.ofproto.inet import IPPROTO_TCP, IPPROTO_UDP
+from ryu.ofproto.ofproto_v1_4 import OFPP_LOCAL
 
 GTP_PORT_MAC = "02:00:00:00:00:01"
 TUNNEL_OAM_FLAG = 1
@@ -76,10 +77,10 @@ class Classifier(MagmaController):
     APP_TYPE = ControllerType.SPECIAL
     SESSIOND_RPC_TIMEOUT = 5
     ClassifierConfig = namedtuple(
-            'ClassifierConfig',
-            ['gtp_port', 'mtr_ip', 'mtr_port', 'internal_sampling_port',
-             'internal_sampling_fwd_tbl', 'multi_tunnel_flag',
-             'internal_conntrack_port', 'internal_conntrack_fwd_tbl', 'paging_timeout', 'classifier_controller_id'],
+        'ClassifierConfig',
+        ['gtp_port', 'mtr_ip', 'mtr_port', 'internal_sampling_port',
+         'internal_sampling_fwd_tbl', 'multi_tunnel_flag',
+         'internal_conntrack_port', 'internal_conntrack_fwd_tbl', 'paging_timeout', 'classifier_controller_id'],
     )
 
     def __init__(self, *args, **kwargs):
@@ -92,7 +93,7 @@ class Classifier(MagmaController):
         self._datapath = None
         self._clean_restart = kwargs['config']['clean_restart']
         self._sessiond_setinterface = \
-                   kwargs['rpc_stubs']['sessiond_setinterface']
+            kwargs['rpc_stubs']['sessiond_setinterface']
         if self.config.multi_tunnel_flag:
             self._ovs_multi_tunnel_init()
         self.paging_flag = 0
@@ -109,7 +110,7 @@ class Classifier(MagmaController):
     def _get_config(self, config_dict):
         mtr_ip = None
         mtr_port = None
-        
+
         if 'mtr_ip' in config_dict:
             self._mtr_service_enabled = True
             mtr_ip = config_dict['mtr_ip']
@@ -124,24 +125,20 @@ class Classifier(MagmaController):
             gtp_port=config_dict['ovs_gtp_port_number'],
             mtr_ip=mtr_ip,
             mtr_port=mtr_port,
-            internal_sampling_port=
-                               config_dict['ovs_internal_sampling_port_number'],
-            internal_sampling_fwd_tbl=
-                               config_dict['ovs_internal_sampling_fwd_tbl_number'],
+            internal_sampling_port=config_dict['ovs_internal_sampling_port_number'],
+            internal_sampling_fwd_tbl=config_dict['ovs_internal_sampling_fwd_tbl_number'],
             multi_tunnel_flag=multi_tunnel_flag,
-            internal_conntrack_port=
-                               config_dict['ovs_internal_conntrack_port_number'],
-            internal_conntrack_fwd_tbl=
-                               config_dict['ovs_internal_conntrack_fwd_tbl_number'],
-            paging_timeout = config_dict['paging_timeout'],
-            classifier_controller_id = config_dict['classifier_controller_id'],
+            internal_conntrack_port=config_dict['ovs_internal_conntrack_port_number'],
+            internal_conntrack_fwd_tbl=config_dict['ovs_internal_conntrack_fwd_tbl_number'],
+            paging_timeout=config_dict['paging_timeout'],
+            classifier_controller_id=config_dict['classifier_controller_id'],
 
         )
 
     def _ovs_multi_tunnel_init(self):
         try:
             subprocess.check_output("sudo ovs-vsctl list Open_vSwitch | grep gtpu",
-                                     shell=True,)
+                                    shell=True,)
             self.ovs_gtp_type = "gtpu"
         except subprocess.CalledProcessError:
             self.ovs_gtp_type = "gtp"
@@ -161,12 +158,12 @@ class Classifier(MagmaController):
 
         except AssertionError as error:
             self.logger.debug('Cannot get port number for %s: %s',
-                               port_name, error)
+                              port_name, error)
             return None
 
-        except Exception as e:     #pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             self.logger.debug('Cannot get port number for %s: %s',
-                               port_name, e)
+                              port_name, e)
             return None
 
         return port_no
@@ -201,7 +198,6 @@ class Classifier(MagmaController):
         self._install_internal_pkt_fwd_flow()
         self._install_internal_conntrack_flow()
 
-
     def _delete_all_flows(self):
         flows.delete_all_flows_from_table(self._datapath, self.tbl_num)
 
@@ -216,21 +212,21 @@ class Classifier(MagmaController):
 
     def _install_default_tunnel_flows(self):
         match = MagmaMatch()
-        flows.add_resubmit_next_service_flow(self._datapath,self.tbl_num, match,
+        flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num, match,
                                              priority=flows.MINIMUM_PRIORITY,
                                              reset_default_register=False,
                                              resubmit_table=self.next_table)
 
     def _install_internal_pkt_fwd_flow(self):
         match = MagmaMatch(in_port=self.config.internal_sampling_port)
-        flows.add_resubmit_next_service_flow(self._datapath,self.tbl_num, match,
+        flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num, match,
                                              priority=flows.MINIMUM_PRIORITY,
                                              reset_default_register=False,
                                              resubmit_table=self.config.internal_sampling_fwd_tbl)
 
     def _install_internal_conntrack_flow(self):
         match = MagmaMatch(in_port=self.config.internal_conntrack_port)
-        flows.add_resubmit_next_service_flow(self._datapath,self.tbl_num, match, [],
+        flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num, match, [],
                                              priority=flows.MINIMUM_PRIORITY,
                                              reset_default_register=False,
                                              resubmit_table=self.config.internal_conntrack_fwd_tbl)
@@ -240,12 +236,14 @@ class Classifier(MagmaController):
         Sending the paging notifation to SMF using gRPC with
         lacal_f_teid and ue_ip_addr value for corresponding UE address.
         """
-        paging_message=UPFPagingInfo(local_f_teid=local_f_teid, ue_ip_addr=ue_ip_add)
+        paging_message = UPFPagingInfo(
+            local_f_teid=local_f_teid,
+            ue_ip_addr=ue_ip_add)
         future = self._sessiond_setinterface.SendPagingReuest.future(
-                            paging_message, self.SESSIOND_RPC_TIMEOUT)
+            paging_message, self.SESSIOND_RPC_TIMEOUT)
         future.add_done_callback(
-                              lambda future: self.loop.call_soon_threadsafe(
-                              self._paging_msg_sent_callback, future))
+            lambda future: self.loop.call_soon_threadsafe(
+                self._paging_msg_sent_callback, future))
 
     def _paging_msg_sent_callback(self, future):
         """
@@ -272,7 +270,7 @@ class Classifier(MagmaController):
 
     def _install_downlink_tunnel_flows(self, priority: int, i_teid: int,
                                        o_teid: int, in_port: int,
-                                       ue_ip_adr:IPAddress, enodeb_ip_addr:str,
+                                       ue_ip_adr: IPAddress, enodeb_ip_addr: str,
                                        gtp_portno: int, sid: int, ng_flag: bool):
 
         parser = self._datapath.ofproto_parser
@@ -286,7 +284,10 @@ class Classifier(MagmaController):
         if ng_flag:
             actions.append(parser.OFPActionSetField(tun_flags=TUNNEL_OAM_FLAG))
         if i_teid:
-            actions.append(parser.NXActionRegLoad2(dst=INGRESS_TUN_ID_REG, value=i_teid))
+            actions.append(
+                parser.NXActionRegLoad2(
+                    dst=INGRESS_TUN_ID_REG,
+                    value=i_teid))
         if sid:
             actions.append(parser.OFPActionSetField(metadata=sid))
 
@@ -296,7 +297,7 @@ class Classifier(MagmaController):
                                              resubmit_table=self.next_table)
 
     def _install_downlink_arp_flows(self, priority: int, in_port: int,
-                                    ue_ip_adr:IPAddress, sid: int):
+                                    ue_ip_adr: IPAddress, sid: int):
 
         parser = self._datapath.ofproto_parser
         match = MagmaMatch(eth_type=ether_types.ETH_TYPE_ARP,
@@ -310,7 +311,6 @@ class Classifier(MagmaController):
                                              actions=actions, priority=priority,
                                              reset_default_register=False,
                                              resubmit_table=self.next_table)
-
 
     def add_tunnel_flows(self, precedence: int, i_teid: int,
                          o_teid: int, ue_ip_adr: IPAddress,
@@ -329,7 +329,8 @@ class Classifier(MagmaController):
 
         # Add flow for gtp port for Uplink Tunnel
         if i_teid:
-            self._install_uplink_tunnel_flows(priority, i_teid, gtp_portno, sid)
+            self._install_uplink_tunnel_flows(
+                priority, i_teid, gtp_portno, sid)
 
         if ip_flow_dl.set_params:
             self._add_tunnel_ip_flow_dl(i_teid, ip_flow_dl, gtp_portno, o_teid,
@@ -360,15 +361,14 @@ class Classifier(MagmaController):
 
         return True
 
-
     def _delete_uplink_tunnel_flows(self, i_teid: int, gtp_portno: int):
 
         match = MagmaMatch(tunnel_id=i_teid, in_port=gtp_portno)
 
         flows.delete_flow(self._datapath, self.tbl_num, match)
 
-
-    def _delete_downlink_tunnel_flows(self, ue_ip_adr: IPAddress, in_port: int):
+    def _delete_downlink_tunnel_flows(
+            self, ue_ip_adr: IPAddress, in_port: int):
 
         ip_match_out = get_ue_ip_match_args(ue_ip_adr, Direction.IN)
         match = MagmaMatch(eth_type=get_eth_type(ue_ip_adr),
@@ -382,7 +382,7 @@ class Classifier(MagmaController):
                            arp_tpa=ipaddress.IPv4Address(ue_ip_adr.address.decode('utf-8')))
 
         flows.delete_flow(self._datapath, self.tbl_num, match)
-    
+
     def _add_tunnel_ip_flow_dl(self, i_teid: int, ip_flow_dl: IPFlowDL,
                                gtp_port: int, o_teid: int, enodeb_ip_addr: str,
                                sid: int = None):
@@ -394,21 +394,23 @@ class Classifier(MagmaController):
                    parser.OFPActionSetField(tun_ipv4_dst=enodeb_ip_addr),
                    parser.NXActionRegLoad2(dst=TUN_PORT_REG, value=gtp_port)]
         if i_teid:
-            actions.append(parser.NXActionRegLoad2(dst=INGRESS_TUN_ID_REG, value=i_teid))
+            actions.append(
+                parser.NXActionRegLoad2(
+                    dst=INGRESS_TUN_ID_REG,
+                    value=i_teid))
         if sid:
             actions.append(parser.OFPActionSetField(metadata=sid))
 
         flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num, match,
-		                             actions=actions, priority=priority,
-					     reset_default_register=False,
-					     resubmit_table=self.next_table)
- 
+                                             actions=actions, priority=priority,
+                                             reset_default_register=False,
+                                             resubmit_table=self.next_table)
+
         match = self._get_ip_flow_dl_match(ip_flow_dl, self.config.mtr_port)
         flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num, match,
-	                                     actions=actions, priority=priority, 
-					     reset_default_register=False,
-					     resubmit_table=self.next_table)
-
+                                             actions=actions, priority=priority,
+                                             reset_default_register=False,
+                                             resubmit_table=self.next_table)
 
     def delete_tunnel_flows(self, i_teid: int, ue_ip_adr: IPAddress,
                             enodeb_ip_addr: str = None,
@@ -486,14 +488,14 @@ class Classifier(MagmaController):
         match = self._get_ip_flow_dl_match(ip_flow_dl, self._uplink_port)
         flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num, match,
                                              priority=Utils.RESUME_RULE_PRIORITY,
-					     reset_default_register=False,
-					     resubmit_table=self.next_table)
+                                             reset_default_register=False,
+                                             resubmit_table=self.next_table)
 
         match = self._get_ip_flow_dl_match(ip_flow_dl, self.config.mtr_port)
         flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num, match,
                                              priority=Utils.RESUME_RULE_PRIORITY,
-					     reset_default_register=False,
-					     resubmit_table=self.next_table)
+                                             reset_default_register=False,
+                                             resubmit_table=self.next_table)
 
     def _discard_tunnel_flows(self, i_teid: int,
                               ue_ip_adr: IPAddress,
@@ -504,7 +506,7 @@ class Classifier(MagmaController):
 
         flows.delete_flow(self._datapath, self.tbl_num, match,
                           priority=Utils.DISCARD_RULE_PRIORITY)
-        
+
         if ip_flow_dl.set_params:
             self._discard_tunnel_ip_flow_dl(ip_flow_dl)
         else:
@@ -520,7 +522,7 @@ class Classifier(MagmaController):
                                in_port=self.config.mtr_port, **ip_match_out)
             flows.delete_flow(self._datapath, self.tbl_num, match,
                               priority=Utils.DISCARD_RULE_PRIORITY)
-    
+
     def _discard_tunnel_ip_flow_dl(self, ip_flow_dl: IPFlowDL):
 
         match = self._get_ip_flow_dl_match(ip_flow_dl, self._uplink_port)
@@ -530,7 +532,6 @@ class Classifier(MagmaController):
         match = self._get_ip_flow_dl_match(ip_flow_dl, self.config.mtr_port)
         flows.delete_flow(self._datapath, self.tbl_num, match,
                           priority=Utils.DISCARD_RULE_PRIORITY)
-
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
@@ -549,10 +550,10 @@ class Classifier(MagmaController):
         match = MagmaMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=dst)
 
         flows.add_drop_flow(self._datapath, self.tbl_num, match, [],
-                            priority = Utils.PAGING_RULE_DROP_PRIORITY,
-                            hard_timeout= self.config.paging_timeout)
+                            priority=Utils.PAGING_RULE_DROP_PRIORITY,
+                            hard_timeout=self.config.paging_timeout)
 
-    def _install_paging_flow(self, ue_ip_addr:IPAddress, local_f_teid:int,
+    def _install_paging_flow(self, ue_ip_addr: IPAddress, local_f_teid: int,
                              ng_flag: bool = True):
 
         ofproto = self._datapath.ofproto
@@ -575,7 +576,7 @@ class Classifier(MagmaController):
                               output_port=ofproto.OFPP_CONTROLLER,
                               max_len=ofproto.OFPCML_NO_BUFFER)
 
-    def _remove_paging_flow(self, ue_ip_addr:IPAddress):
+    def _remove_paging_flow(self, ue_ip_addr: IPAddress):
         ip_match_out = get_ue_ip_match_args(ue_ip_addr, Direction.IN)
         match = MagmaMatch(eth_type=get_eth_type(ue_ip_addr), **ip_match_out)
         flows.delete_flow(self._datapath, self.tbl_num, match)
@@ -608,19 +609,20 @@ class Classifier(MagmaController):
                     vlan: int = 0, ip_flow_dl: IPFlowDL = None):
 
         if (session_state == PdrState.Value('INSTALL')
-             or session_state == UESessionState.ACTIVE):
+                or session_state == UESessionState.ACTIVE):
             self.add_tunnel_flows(precedence, local_f_teid,
                                   o_teid, ue_ip_addr,
                                   gnb_ip_addr, sid, ng_flag, ue_ipv6_address,
                                   apn, vlan, ip_flow_dl)
 
         elif (session_state == PdrState.Value('IDLE')
-               or session_state == UESessionState.INSTALL_IDLE):
-            self.delete_tunnel_flows(local_f_teid, ue_ip_addr, gnb_ip_addr, ip_flow_dl)
+              or session_state == UESessionState.INSTALL_IDLE):
+            self.delete_tunnel_flows(
+                local_f_teid, ue_ip_addr, gnb_ip_addr, ip_flow_dl)
             self._install_paging_flow(ue_ip_addr, local_f_teid, ng_flag)
 
         elif (session_state == PdrState.Value('REMOVE')
-               or session_state == UESessionState.UNREGISTERED):
+              or session_state == UESessionState.UNREGISTERED):
             self.delete_tunnel_flows(local_f_teid, ue_ip_addr,
                                      gnb_ip_addr, ip_flow_dl)
             self._remove_paging_flow(ue_ip_addr)
@@ -737,7 +739,6 @@ class Classifier(MagmaController):
             self._delete_downlink_arp_flows(ue_ip_adr, self.config.mtr_port)
 
         return True
-
 
     def _upf_add_tunnel(self, ue_session_entry):
         self.logger.info(

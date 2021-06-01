@@ -114,8 +114,8 @@ class LIMirrorController(MagmaController):
             match = MagmaMatch(imsi=encode_imsi(imsi))
             actions = [parser.OFPActionOutput(self._li_dst_port_num)]
             flows.add_resubmit_next_service_flow(self._datapath, self.tbl_num,
-                match, actions, priority=flows.DEFAULT_PRIORITY,
-                resubmit_table=self.next_table)
+                                                 match, actions, priority=flows.DEFAULT_PRIORITY,
+                                                 resubmit_table=self.next_table)
 
     def _remove_mirror_flows(self, imsis):
         for imsi in imsis:
@@ -130,7 +130,7 @@ class LIMirrorController(MagmaController):
         while True:
             mconfg_li_imsis = load_service_mconfig(
                 'pipelined', mconfigs_pb2.PipelineD()).li_ues.imsis
-            
+
             li_imsis = []
             for imsi in mconfg_li_imsis:
                 if any(i.isdigit() for i in imsi):

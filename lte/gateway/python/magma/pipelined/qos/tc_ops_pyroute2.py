@@ -30,6 +30,7 @@ class TcOpsPyRoute2(TcOpsBase):
     """
     Create TC scheduler and corresponding filter
     """
+
     def __init__(self):
         self._ipr = IPRoute()
         self._iface_if_index = {}
@@ -51,7 +52,12 @@ class TcOpsPyRoute2(TcOpsBase):
             zero on success.
         """
 
-        LOG.debug("Create HTB iface %s qid %s max_bw %s rate %s", iface, qid, max_bw, rate)
+        LOG.debug(
+            "Create HTB iface %s qid %s max_bw %s rate %s",
+            iface,
+            qid,
+            max_bw,
+            rate)
         try:
             # API needs ceiling in bytes per sec.
             max_bw = max_bw / 8
@@ -91,7 +97,8 @@ class TcOpsPyRoute2(TcOpsBase):
             return ex.code
         return 0
 
-    def create_filter(self, iface: str, mark: str, qid: str, proto: int = PROTOCOL) -> int:
+    def create_filter(self, iface: str, mark: str, qid: str,
+                      proto: int = PROTOCOL) -> int:
         """
         Create TC Filter for given HTB class.
         """
@@ -114,7 +121,8 @@ class TcOpsPyRoute2(TcOpsBase):
             return ex.code
         return 0
 
-    def del_filter(self, iface: str, mark: str, qid: str, proto: int = PROTOCOL) -> int:
+    def del_filter(self, iface: str, mark: str, qid: str,
+                   proto: int = PROTOCOL) -> int:
         """
         Delete TC filter.
         """

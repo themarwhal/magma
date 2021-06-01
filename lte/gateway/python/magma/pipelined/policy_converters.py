@@ -42,11 +42,11 @@ def _check_pkt_protocol(match):
     Args:
         match: FlowMatch
     '''
-    if (match.tcp_dst or match.tcp_src) and (match.ip_proto !=
-                                             match.IPPROTO_TCP):
+    if (match.tcp_dst or match.tcp_src) and (match.ip_proto
+                                             != match.IPPROTO_TCP):
         raise FlowMatchError("To use tcp rules set ip_proto to IPPROTO_TCP")
-    if (match.udp_dst or match.udp_src) and (match.ip_proto !=
-                                             match.IPPROTO_UDP):
+    if (match.udp_dst or match.udp_src) and (match.ip_proto
+                                             != match.IPPROTO_UDP):
         raise FlowMatchError("To use udp rules set ip_proto to IPPROTO_UDP")
     return True
 
@@ -120,12 +120,23 @@ def flow_match_to_actions(datapath, match):
     '''
     parser = datapath.ofproto_parser
     _check_pkt_protocol(match)
-    # Eth type and ip proto are read only, can't set them here (set on pkt init)
+    # Eth type and ip proto are read only, can't set them here (set on pkt
+    # init)
     actions = [
-        parser.OFPActionSetField(ipv4_src=getattr(match, 'ipv4_src', '1.1.1.1')),
-        parser.OFPActionSetField(ipv4_dst=getattr(match, 'ipv4_dst', '1.2.3.4')),
+        parser.OFPActionSetField(
+            ipv4_src=getattr(
+                match,
+                'ipv4_src',
+                '1.1.1.1')),
+        parser.OFPActionSetField(
+            ipv4_dst=getattr(
+                match,
+                'ipv4_dst',
+                '1.2.3.4')),
         load_direction(parser, get_direction_for_match(match)),
-        parser.NXActionRegLoad2(dst=DPI_REG, value=getattr(match, 'app_id', 0)),
+        parser.NXActionRegLoad2(
+            dst=DPI_REG, value=getattr(
+                match, 'app_id', 0)),
     ]
     if match.ip_proto == FlowMatch.IPPROTO_TCP:
         actions.extend([

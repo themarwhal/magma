@@ -41,6 +41,7 @@ class TestSetup(object):
         integ_test:         bool:           set true when running tests in
                                             integ setting
     """
+
     def __init__(self, apps, references, config, mconfig, loop,
                  service_manager, integ_test=False, rpc_stubs=None):
         self.apps = apps
@@ -127,6 +128,7 @@ class PipelinedController(Enum):
         'magma.pipelined.app.ng_services', 'ng_services'
     )
 
+
 def assert_pipelined_not_running():
     """
     As Ryu applications shoudn't be started if the magma@pipelined service is
@@ -144,14 +146,14 @@ def assert_pipelined_not_running():
     except subprocess.CalledProcessError as e:
         if "inactive" not in str(e.output, 'utf-8'):
             raise ServiceRunningError(
-                "Pipelined is running, 'systemctl is-active magma@pipelined'" +
-                "caused an error code %d, exception - %s"
+                "Pipelined is running, 'systemctl is-active magma@pipelined'"
+                + "caused an error code %d, exception - %s"
                 % (e.returncode, str(e.output, 'utf-8').strip())
             )
     else:
         raise ServiceRunningError(
-            "Pipelined is running, 'systemctl is-active magma@pipelined'" +
-            "output - %s" % str(output, 'utf-8').strip()
+            "Pipelined is running, 'systemctl is-active magma@pipelined'"
+            + "output - %s" % str(output, 'utf-8').strip()
         )
 
 

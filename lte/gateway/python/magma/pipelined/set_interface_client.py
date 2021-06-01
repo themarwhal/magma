@@ -16,11 +16,13 @@ import logging
 import grpc
 from lte.protos.session_manager_pb2 import (
     UPFNodeState,
+    UPFPagingInfo,
     UPFSessionConfigState,
-    UPFPagingInfo)
+)
 from lte.protos.session_manager_pb2_grpc import SetInterfaceForUserPlaneStub
 
 DEFAULT_GRPC_TIMEOUT = 5
+
 
 def send_node_state_association_request(node_state_info: UPFNodeState,
                                         setinterface_stub: SetInterfaceForUserPlaneStub):
@@ -29,7 +31,8 @@ def send_node_state_association_request(node_state_info: UPFNodeState,
     sessionD (SMF)
     """
     try:
-        setinterface_stub.SetUPFNodeState(node_state_info, DEFAULT_GRPC_TIMEOUT)
+        setinterface_stub.SetUPFNodeState(
+            node_state_info, DEFAULT_GRPC_TIMEOUT)
         return True
     except grpc.RpcError as err:
         logging.error(
@@ -37,6 +40,7 @@ def send_node_state_association_request(node_state_info: UPFNodeState,
             err.code(),
             err.details())
         return False
+
 
 def send_periodic_session_update(upf_session_config_state: UPFSessionConfigState,
                                  setinterface_stub: SetInterfaceForUserPlaneStub):
@@ -57,7 +61,7 @@ def send_periodic_session_update(upf_session_config_state: UPFSessionConfigState
 def send_paging_intiated_notification(paging_info: UPFPagingInfo,
                                       setinterface_stub: SetInterfaceForUserPlaneStub):
     """
-	Make RPC call to send paging initiated notification to sessionD
+        Make RPC call to send paging initiated notification to sessionD
     """
     try:
         setinterface_stub.SetPagingInitiated(paging_info, DEFAULT_GRPC_TIMEOUT)

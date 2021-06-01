@@ -17,25 +17,27 @@ from lte.protos.pipelined_pb2 import (
     DeactivateFlowsRequest,
 )
 
-FARRuleEntry =  NamedTuple(
-                   'FARRuleEntry',
-                    [('apply_action', int),
-                     ('o_teid', int),
-                     ('gnb_ip_addr', str)])
+FARRuleEntry = NamedTuple(
+    'FARRuleEntry',
+    [('apply_action', int),
+     ('o_teid', int),
+     ('gnb_ip_addr', str)])
 
 PDRRuleEntry = NamedTuple(
-                'PDRRuleEntry',
-                [('pdr_id', int),
-                 ('pdr_version', int),
-                 ('pdr_state', int),
-                 ('precedence', int),
-                 ('local_f_teid', int),
-                 ('ue_ip_addr', str),
-                 ('del_qos_enforce_rule', DeactivateFlowsRequest),
-                 ('add_qos_enforce_rule', ActivateFlowsRequest),
-                 ('far_action', FARRuleEntry)])
+    'PDRRuleEntry',
+    [('pdr_id', int),
+     ('pdr_version', int),
+     ('pdr_state', int),
+     ('precedence', int),
+     ('local_f_teid', int),
+     ('ue_ip_addr', str),
+     ('del_qos_enforce_rule', DeactivateFlowsRequest),
+     ('add_qos_enforce_rule', ActivateFlowsRequest),
+     ('far_action', FARRuleEntry)])
 
 # Create the Named tuple for the FAR entry
+
+
 def far_create_rule_entry(far_entry) -> FARRuleEntry:
     o_teid = 0
     fwd_gnb_ip_addr = None
@@ -50,6 +52,8 @@ def far_create_rule_entry(far_entry) -> FARRuleEntry:
     return far_rule
 
 # Create the Named tuple for the PDR entry
+
+
 def pdr_create_rule_entry(pdr_entry) -> PDRRuleEntry:
     local_f_teid = 0
     ue_ip_addr = None
@@ -80,4 +84,3 @@ def pdr_create_rule_entry(pdr_entry) -> PDRRuleEntry:
                             deactivate_flow_req, activate_flow_req,
                             far_entry)
     return pdr_rule
-

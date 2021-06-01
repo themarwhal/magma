@@ -229,7 +229,7 @@ def wait_after_send(test_controller, wait_time=1, max_sleep_time=20):
         if (sleep_time >= max_sleep_time):
             raise WaitTimeExceeded(
                 "Waiting on pkts exceeded the max({}) sleep time".
-                    format(max_sleep_time)
+                format(max_sleep_time)
             )
 
 
@@ -334,7 +334,7 @@ def wait_for_enforcement_stats(controller, rule_list, wait_time=1,
     while not all(stats_reported[rule] for rule in rule_list):
         hub.sleep(wait_time)
 
-        #There is no sessiond report callback in testing so manually reset var
+        # There is no sessiond report callback in testing so manually reset var
         if times_called != len(controller._report_usage.call_args_list):
             times_called = len(controller._report_usage.call_args_list)
             controller._last_report_timestamp = datetime.now()
@@ -348,7 +348,7 @@ def wait_for_enforcement_stats(controller, rule_list, wait_time=1,
         if (sleep_time >= max_sleep_time):
             raise WaitTimeExceeded(
                 "Waiting on enforcement stats exceeded the max({}) sleep time".
-                    format(max_sleep_time)
+                format(max_sleep_time)
             )
 
 
@@ -533,7 +533,8 @@ def wait_for_snapshots(test_case: TestCase,
             flows.set_barrier(datapath)
         hub.sleep(wait_time)
 
-        new_snapshot = _get_current_bridge_snapshot(bridge_name, service_manager)
+        new_snapshot = _get_current_bridge_snapshot(
+            bridge_name, service_manager)
         if try_snapshot:
             snapshot_file, expected_ = expected_snapshot(test_case,
                                                          bridge_name,
@@ -550,7 +551,7 @@ def wait_for_snapshots(test_case: TestCase,
         if sleep_time >= max_sleep_time:
             raise WaitTimeExceeded(
                 "Waiting on pkts exceeded the max({}) sleep time".
-                    format(max_sleep_time)
+                format(max_sleep_time)
             )
 
 
@@ -602,7 +603,8 @@ class SnapshotVerifier:
                                datapath=self._datapath,
                                try_snapshot=self._try_snapshot)
         except WaitTimeExceeded as e:
-            ofctl_cmd = "sudo ovs-ofctl dump-flows %s".format(self._bridge_name)
+            ofctl_cmd = "sudo ovs-ofctl dump-flows %s".format(
+                self._bridge_name)
             p = subprocess.Popen([ofctl_cmd],
                                  stdout=subprocess.PIPE,
                                  shell=True)

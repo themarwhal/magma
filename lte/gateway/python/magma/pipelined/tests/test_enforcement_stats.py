@@ -26,6 +26,7 @@ from lte.protos.policydb_pb2 import (
 )
 from magma.pipelined.app.enforcement import EnforcementController
 from magma.pipelined.bridge_util import BridgeTools
+from magma.pipelined.openflow import flows
 from magma.pipelined.policy_converters import (
     convert_ipv4_str_to_ip_proto,
     convert_ipv6_bytes_to_ip_proto,
@@ -55,7 +56,6 @@ from magma.pipelined.tests.pipelined_test_util import (
     wait_after_send,
     wait_for_enforcement_stats,
 )
-from magma.pipelined.openflow import flows
 from scapy.all import IP
 
 
@@ -184,11 +184,17 @@ class EnforcementStatsTest(unittest.TestCase):
         ]
         policies = [
             VersionedPolicy(
-                rule=PolicyRule(id='tx_match', priority=3, flow_list=flow_list1),
+                rule=PolicyRule(
+                    id='tx_match',
+                    priority=3,
+                    flow_list=flow_list1),
                 version=1,
             ),
             VersionedPolicy(
-                rule=PolicyRule(id='rx_match', priority=5, flow_list=flow_list2),
+                rule=PolicyRule(
+                    id='rx_match',
+                    priority=5,
+                    flow_list=flow_list2),
                 version=1,
             )
         ]
@@ -401,7 +407,7 @@ class EnforcementStatsTest(unittest.TestCase):
 
         isolator = RyuDirectTableIsolator(
             RyuForwardFlowArgsBuilder.from_subscriber(sub_context.cfg)
-                .build_requests(),
+            .build_requests(),
             self.testing_controller
         )
 
@@ -421,7 +427,7 @@ class EnforcementStatsTest(unittest.TestCase):
         with isolator, sub_context, snapshot_verifier:
             pkt_sender.send(packet)
         enf_stat_name = imsi + '|' + self.DEFAULT_DROP_FLOW_NAME + '|' \
-                        + sub_ip + '|' + "0"
+            + sub_ip + '|' + "0"
         wait_for_enforcement_stats(self.enforcement_stats_controller,
                                    [enf_stat_name])
         stats = get_enforcement_stats(
@@ -549,8 +555,8 @@ class EnforcementStatsTest(unittest.TestCase):
             stats = get_enforcement_stats(
                 self.enforcement_stats_controller._report_usage.call_args_list)
             for args in self.enforcement_stats_controller._report_usage.call_args_list:
-                self.enforcement_stats_controller._delete_old_flows(args[0][0].values())
-
+                self.enforcement_stats_controller._delete_old_flows(
+                    args[0][0].values())
 
         self.assertEqual(stats[enf_stat_name].sid, imsi)
         self.assertEqual(stats[enf_stat_name].rule_id, "rule1")
@@ -636,7 +642,7 @@ class EnforcementStatsTest(unittest.TestCase):
                              'rule1', 2)
             self.enforcement_controller.deactivate_rules(
                 imsi, convert_ipv4_str_to_ip_proto(sub_ip), [policy.rule.id])
-            policy.version=2
+            policy.version = 2
             self.enforcement_controller.activate_rules(
                 imsi, None, None, convert_ipv4_str_to_ip_proto(sub_ip), None,
                 [policy])
@@ -654,7 +660,8 @@ class EnforcementStatsTest(unittest.TestCase):
             stats = get_enforcement_stats(
                 self.enforcement_stats_controller._report_usage.call_args_list)
             for args in self.enforcement_stats_controller._report_usage.call_args_list:
-                self.enforcement_stats_controller._delete_old_flows(args[0][0].values())
+                self.enforcement_stats_controller._delete_old_flows(
+                    args[0][0].values())
 
             self.assertEqual(stats[enf_stat_names[0]].sid, imsi)
             self.assertEqual(stats[enf_stat_names[0]].rule_id, "rule1")
@@ -676,7 +683,7 @@ class EnforcementStatsTest(unittest.TestCase):
         self.assertEqual(stats[enf_stat_names[1]].rule_version, 2)
         self.assertEqual(stats[enf_stat_names[1]].bytes_rx, 0)
         # TODO Figure out why this one fails.
-        #self.assertEqual(stats[enf_stat_name].bytes_tx,
+        # self.assertEqual(stats[enf_stat_name].bytes_tx,
         #                 num_pkts_tx_match * len(packet))
         self.assertEqual(len(stats), 2)
 
@@ -708,7 +715,7 @@ class EnforcementStatsTest(unittest.TestCase):
         enf_stat_name = imsi + '|' + 'rule1' + '|' + sub_ip + '|' + "1"
         """ Setup subscriber, setup table_isolation to fwd pkts """
         sub_context = RyuDirectSubscriberContext(
-            imsi, sub_ip, self.enforcement_controller, 
+            imsi, sub_ip, self.enforcement_controller,
             self._main_tbl_num, self.enforcement_stats_controller
         ).add_policy(policy)
 
@@ -717,18 +724,19 @@ class EnforcementStatsTest(unittest.TestCase):
 
         self.enforcement_stats_controller._report_usage.reset_mock()
         with sub_context, snapshot_verifier:
-            self.enforcement_stats_controller.init_finished = True  
+            self.enforcement_stats_controller.init_finished = True
             flows.send_stats_request(self.enforcement_stats_controller._datapath,
-                self.enforcement_stats_controller.tbl_num,
-                1,
-                flows.OVS_COOKIE_MATCH_ALL)
+                                     self.enforcement_stats_controller.tbl_num,
+                                     1,
+                                     flows.OVS_COOKIE_MATCH_ALL)
             wait_for_enforcement_stats(self.enforcement_stats_controller,
                                        [enf_stat_name])
         stats = get_enforcement_stats(
             self.enforcement_stats_controller._report_usage.call_args_list)
-        self.assertEqual(stats[enf_stat_name].rule_id,'rule1')
+        self.assertEqual(stats[enf_stat_name].rule_id, 'rule1')
         self.enforcement_stats_controller._poll_stats = original
         self.assertEqual(len(stats), 1)
-    
+
+
 if __name__ == "__main__":
     unittest.main()

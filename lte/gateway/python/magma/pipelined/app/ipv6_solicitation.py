@@ -242,7 +242,8 @@ class IPV6SolicitationController(MagmaController):
         if direction == Direction.OUT:
             actions_out.extend([
                 parser.NXActionSetTunnel(tun_id=tun_id),
-                parser.NXActionRegLoad2(dst='tun_ipv4_dst', value=tun_ipv4_dst),
+                parser.NXActionRegLoad2(
+                    dst='tun_ipv4_dst', value=tun_ipv4_dst),
             ])
         actions_out.append(parser.OFPActionOutput(port=output_port))
         out = parser.OFPPacketOut(datapath=self._datapath,

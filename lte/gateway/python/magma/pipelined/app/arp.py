@@ -140,7 +140,7 @@ class ArpController(MagmaController):
             # UE_FLOW_PRIORITY    : Router IP
             # UE_FLOW_PRIORITY -1 : drop flow for untagged arp requests
             # DEFAULT_PRIORITY    : ARP responder for all tagged IPs. Table
-            #                       zero would tag ARP requests for valid UE IPs.
+            # zero would tag ARP requests for valid UE IPs.
             self.logger.info("APR: Non-Nat special mac %s",
                              self.config.virtual_mac)
 
@@ -210,7 +210,8 @@ class ArpController(MagmaController):
             - For ARP response: pass to next table.
         """
         self.set_incoming_arp_flows_res(datapath, ip_block, flow_priority)
-        self.set_incoming_arp_flows_req(datapath, ip_block, src_mac, flow_priority)
+        self.set_incoming_arp_flows_req(
+            datapath, ip_block, src_mac, flow_priority)
 
     def set_incoming_arp_flows_res(self, datapath, ip_block,
                                    flow_priority: int = flows.UE_FLOW_PRIORITY):
@@ -312,7 +313,8 @@ class ArpController(MagmaController):
         match = MagmaMatch(eth_type=ether_types.ETH_TYPE_IP,
                            direction=Direction.OUT)
         actions = [
-            parser.NXActionRegLoad2(dst='eth_dst', value=self.config.virtual_mac),
+            parser.NXActionRegLoad2(
+                dst='eth_dst', value=self.config.virtual_mac),
         ]
         flows.add_resubmit_next_service_flow(datapath, self.table_num, match,
                                              actions,

@@ -90,7 +90,7 @@ class ArpTableTest(unittest.TestCase):
     MTR_MAC = "FF:EE:DD:CC:49:4b"
 
     @unittest.mock.patch('netifaces.ifaddresses',
-                return_value=[[{'addr': '00:11:22:33:44:55'}]])
+                         return_value=[[{'addr': '00:11:22:33:44:55'}]])
     @unittest.mock.patch('netifaces.AF_LINK', 0)
     def setUp(self, *_):
         """
@@ -104,7 +104,8 @@ class ArpTableTest(unittest.TestCase):
         #super(ArpTableTest, cls).setUpClass()
         warnings.simplefilter('ignore')
         cls.service_manager = create_service_manager([], ['arpd'])
-        cls._tbl_num = cls.service_manager.get_table_num(ArpController.APP_NAME)
+        cls._tbl_num = cls.service_manager.get_table_num(
+            ArpController.APP_NAME)
 
         arp.mobilityd_list_ip_blocks = mocked_mobilityd_list_ip_blocks
         arp_controller_reference = Future()
@@ -274,7 +275,7 @@ class ArpTableTestRouterIP(unittest.TestCase):
     MTR_MAC = "FF:EE:DD:CC:49:4b"
 
     @unittest.mock.patch('netifaces.ifaddresses',
-                return_value=[[{'addr': '00:11:22:33:44:55'}]])
+                         return_value=[[{'addr': '00:11:22:33:44:55'}]])
     @unittest.mock.patch('netifaces.AF_LINK', 0)
     def setUp(self, *_):
         """
@@ -290,7 +291,8 @@ class ArpTableTestRouterIP(unittest.TestCase):
 
         warnings.simplefilter('ignore')
         cls.service_manager = create_service_manager([], ['arpd'])
-        cls._tbl_num = cls.service_manager.get_table_num(ArpController.APP_NAME)
+        cls._tbl_num = cls.service_manager.get_table_num(
+            ArpController.APP_NAME)
 
         arp.mobilityd_list_ip_blocks = mocked_mobilityd_list_ip_blocks
         arp_controller_reference = Future()

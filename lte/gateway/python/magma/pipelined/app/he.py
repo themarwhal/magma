@@ -129,7 +129,8 @@ class HeaderEnrichmentController(MagmaController):
 
     def _get_config(self, config_dict, mconfig) -> namedtuple:
         try:
-            he_proxy_port = BridgeTools.get_ofport(config_dict.get('proxy_port_name'))
+            he_proxy_port = BridgeTools.get_ofport(
+                config_dict.get('proxy_port_name'))
 
             he_enabled = config_dict.get('he_enabled', True)
             uplink_port = config_dict.get('uplink_port', None)
@@ -193,14 +194,17 @@ class HeaderEnrichmentController(MagmaController):
         Gets the hash, encryptes the header and encodes it depending on the
         configuration
         """
-        hash_hex = get_hash(self.config.encryption_key, self.config.hash_function)
+        hash_hex = get_hash(
+            self.config.encryption_key,
+            self.config.hash_function)
         encrypted = encrypt_str(header_value, hash_hex,
                                 self.config.encryption_algorithm)
         ret = encode_str(encrypted, self.config.encoding_type)
 
         return ret
 
-    def _set_he_target_urls(self, ue_addr: str, rule_id: str, urls: List[str], imsi: str, msisdn: bytes) -> bool:
+    def _set_he_target_urls(self, ue_addr: str, rule_id: str,
+                            urls: List[str], imsi: str, msisdn: bytes) -> bool:
         msisdn_str = None
         ip_addr = convert_ipv4_str_to_ip_proto(ue_addr)
         if self.config.encryption_enabled:
@@ -208,7 +212,8 @@ class HeaderEnrichmentController(MagmaController):
             if msisdn:
                 msisdn_str = self.encrypt_header(msisdn.decode("utf-8"))
 
-        return activate_he_urls_for_ue(ip_addr, rule_id, urls, imsi, msisdn_str)
+        return activate_he_urls_for_ue(
+            ip_addr, rule_id, urls, imsi, msisdn_str)
 
     def get_subscriber_he_flows(self, rule_id: str, direction: Direction,
                                 ue_addr: str, uplink_tunnel: int, ip_dst: str,
@@ -240,7 +245,9 @@ class HeaderEnrichmentController(MagmaController):
             if uplink_tunnel:
                 tunnel_id = int(uplink_tunnel)
         except ValueError:
-            self.logger.error("parsing tunnel id: [%s], HE might not work in every case", uplink_tunnel)
+            self.logger.error(
+                "parsing tunnel id: [%s], HE might not work in every case",
+                uplink_tunnel)
 
         if urls is None or len(urls) == 0:
             return []
@@ -253,7 +260,8 @@ class HeaderEnrichmentController(MagmaController):
                      "urls %s, imsi %s, msisdn %s", ue_addr, rule_id, uplink_tunnel, ip_dst,
                      str(rule_num), str(urls), imsi, str(msisdn))
 
-        success = self._set_he_target_urls(ue_addr, rule_id, urls, imsi, msisdn)
+        success = self._set_he_target_urls(
+            ue_addr, rule_id, urls, imsi, msisdn)
         if not success:
             return []
         msgs = []
