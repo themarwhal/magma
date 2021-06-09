@@ -981,6 +981,7 @@ jobs:
     machine:
       image: ubuntu-2004:202010-01
       docker_layer_caching: true
+    resource_class: large
     environment:
       MAGMA_ROOT: /home/circleci/project
       BRANCH: << pipeline.git.branch >>
