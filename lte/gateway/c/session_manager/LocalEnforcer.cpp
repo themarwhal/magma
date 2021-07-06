@@ -1023,17 +1023,6 @@ void LocalEnforcer::init_session_with_policy_response(
   session->set_fsm_state(SESSION_ACTIVE, session_uc);
 }
 
-void LocalEnforcer::init_session(
-    SessionMap& session_map, const std::string& imsi,
-    const std::string& session_id, const SessionConfig& cfg,
-    const CreateSessionResponse& response) {
-  const auto time_since_epoch = magma::get_time_in_sec_since_epoch();
-  auto session                = std::make_unique<SessionState>(
-      imsi, session_id, cfg, *rule_store_, response.tgpp_ctx(),
-      time_since_epoch, response);
-  session_map[imsi].push_back(std::move(session));
-}
-
 bool LocalEnforcer::update_tunnel_ids(
     SessionMap& session_map, const UpdateTunnelIdsRequest& request) {
   const auto imsi             = request.sid().id();
